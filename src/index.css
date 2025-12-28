@@ -1,0 +1,80 @@
+@import 'pixel-retroui/dist/index.css';
+@import 'pixel-retroui/dist/fonts.css';
+@import 'tailwindcss';
+
+:root {
+  --radius: 0.5rem;
+  --background: #FCFFE7;
+  --foreground: #000000;
+  --muted: #EFD0D5;
+  --muted-foreground: #A42439;
+  --card: #FFFFFF;
+  --card-foreground: #000000;
+  --popover: #FFFFFF;
+  --popover-foreground: #000000;
+  --border: #000000;
+  --input: #FFFFFF;
+  --primary: #EA435F;
+  --primary-hover: #D00000;
+  --primary-foreground: #FFFFFF;
+  --secondary: #FFDA5C;
+  --secondary-foreground: #000000;
+  --accent: #CEEBFC;
+  --accent-foreground: #000000;
+  --destructive: #D00000;
+  --destructive-foreground: #FFFFFF;
+  --ring: #000000;
+}
+
+.dark {
+  --background: #0f0f0f;
+  --foreground: #f5f5f5;
+  --muted: #3a1f24;
+  --muted-foreground: #f2a7b2;
+  --card: #1a1a1a;
+  --card-foreground: #ffffff;
+  --popover: #1a1a1a;
+  --popover-foreground: #ffffff;
+  --border: #2a2a2a;
+  --input: #2a2a2a;
+  --primary: #EA435F;
+  --primary-hover: #D00000;
+  --primary-foreground: #ffffff;
+  --secondary: #FFDA5C;
+  --secondary-foreground: #000000;
+  --accent: #2a3b45;
+  --accent-foreground: #CEEBFC;
+  --destructive: #D00000;
+  --destructive-foreground: #ffffff;
+  --ring: #EA435F;
+}
+
+body {
+  margin: 0;
+  min-width: 320px;
+  min-height: 100vh;
+  background-color: var(--background);
+  color: var(--foreground);
+  font-family: 'Press Start 2P', 'Courier New', monospace;
+  font-size: 10px;
+  image-rendering: pixelated;
+  image-rendering: -moz-crisp-edges;
+  image-rendering: crisp-edges;
+  line-height: 1.8;
+}
+
+* {
+  border-color: var(--border);
+  font-family: 'Press Start 2P', 'Courier New', monospace;
+}
+
+button, input, textarea, select {
+  font-family: 'Press Start 2P', 'Courier New', monospace;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  font-family: 'Press Start 2P', 'Courier New', monospace;
+  font-weight: normal;
+  letter-spacing: 0.05em;
+  line-height: 1.4;
+}
