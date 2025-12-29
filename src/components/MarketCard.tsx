@@ -5,18 +5,20 @@ import { motion } from 'framer-motion';
 
 interface MarketCardProps {
   market: Market;
-  onVote: (marketId: string, side: Outcome) => void;
+  onVote: (marketId: string, side: Outcome, quantity: number) => void;
   selectedOutcome?: Outcome;
+  userAddress?: string | null;
 }
 
-const MarketCard = ({ market, onVote, selectedOutcome }: MarketCardProps) => {
+const MarketCard = ({ market, onVote, selectedOutcome, userAddress }: MarketCardProps) => {
   const totalVotes = market.num_yes + market.num_no;
   const yesPercentage = totalVotes > 0 ? (market.num_yes / totalVotes) * 100 : 0;
   const noPercentage = totalVotes > 0 ? (market.num_no / totalVotes) * 100 : 0;
 
   const isResolved = market.resolved;
-  const userVote = market.voters && Object.keys(market.voters).length > 0 
-    ? Object.values(market.voters)[0]?.side 
+  // Check if the CURRENT user has voted by looking up their address in the voters map
+  const userVote = userAddress && market.voters && market.voters[userAddress]
+    ? market.voters[userAddress].side
     : selectedOutcome;
 
   return (
@@ -124,7 +126,7 @@ const MarketCard = ({ market, onVote, selectedOutcome }: MarketCardProps) => {
             whileTap={{ scale: 0.95 }}
           >
             <Button
-              onClick={() => onVote(market.id, Outcome.YES)}
+              onClick={() => onVote(market.id, Outcome.YES, 1)}
               className="w-full text-xs"
               disabled={userVote === Outcome.YES}
               style={{
@@ -146,7 +148,7 @@ const MarketCard = ({ market, onVote, selectedOutcome }: MarketCardProps) => {
             whileTap={{ scale: 0.95 }}
           >
             <Button
-              onClick={() => onVote(market.id, Outcome.NO)}
+              onClick={() => onVote(market.id, Outcome.NO, 1)}
               className="w-full text-xs"
               disabled={userVote === Outcome.NO}
               style={{

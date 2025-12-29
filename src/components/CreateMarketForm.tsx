@@ -41,7 +41,7 @@ const CreateMarketForm = ({ onClose, onSuccess }: CreateMarketFormProps) => {
 
     setLoading(true);
     try {
-      await wallet.contracts.execute(
+      const result = await wallet.contracts.execute(
         contractAddress,
         'add_market',
         {
@@ -49,6 +49,20 @@ const CreateMarketForm = ({ onClose, onSuccess }: CreateMarketFormProps) => {
           liquidity: liquidityValue,
         }
       );
+
+      console.log('Add market result:', result);
+
+      // Handle potential Result type response
+      let resultData = result;
+      if (result && typeof result === 'object' && 'txn_result' in result && typeof result.txn_result === 'string') {
+        resultData = JSON.parse(result.txn_result);
+      }
+      
+      if (resultData && typeof resultData === 'object' && 'Err' in resultData) {
+        const errorMsg = typeof resultData.Err === 'string' ? resultData.Err : JSON.stringify(resultData.Err);
+        alert(`Failed to create market: ${errorMsg}`);
+        return;
+      }
 
       alert('Market created successfully!');
       setQuestion('');

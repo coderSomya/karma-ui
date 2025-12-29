@@ -8,7 +8,7 @@ export const Outcome = {
 
 export type Bet = {
   side: Outcome;
-  quantity: number;
+  quantity: number; // u64 in contract
 };
 
 export type Market = {
@@ -38,8 +38,9 @@ export type KarmaContract = {
   get_markets: () => Promise<Market[]>;
   get_user: (id: string) => Promise<User | null>;
   get_market: (id: string) => Promise<Market | null>;
-  bet: (market_id: string, side: Outcome) => Promise<{ Ok: null } | { Err: string }>;
+  bet: (market_id: string, side: Outcome, quantity: number) => Promise<{ Ok: null } | { Err: string }>;
   resolve: (market_id: string) => Promise<{ Ok: null } | { Err: string }>;
   deposit: (amount: number) => Promise<void>;
+  get_cost: (market_id: string) => Promise<[number, number]>; // tuple<f64, f64> - [yes_cost, no_cost]
 };
 

@@ -52,8 +52,31 @@ export const WalletProvider = ({ children }: WalletProviderProps) => {
         { id: address }
       );
       
-      if (userResult && typeof userResult === 'object' && 'id' in userResult) {
-        setUser(userResult as User);
+      console.log('Refresh user data result:', userResult);
+      
+      // Handle Result<User, Error> response from contract
+      let user = null;
+      if (userResult && typeof userResult === 'object') {
+        // Check if txn_result exists (Weil Wallet response format)
+        let resultData = userResult;
+        if ('txn_result' in userResult && typeof userResult.txn_result === 'string') {
+          resultData = JSON.parse(userResult.txn_result);
+        }
+        
+        if ('Ok' in resultData) {
+          // Parse the JSON string inside Ok
+          const userData = typeof resultData.Ok === 'string' 
+            ? JSON.parse(resultData.Ok) 
+            : resultData.Ok;
+          user = userData;
+        } else if ('id' in resultData) {
+          // Direct user object (fallback)
+          user = resultData;
+        }
+      }
+      
+      if (user && user.id) {
+        setUser(user as User);
       } else {
         setUser(null);
       }
@@ -64,17 +87,50 @@ export const WalletProvider = ({ children }: WalletProviderProps) => {
   }, [wallet, contractAddress]);
 
   const refreshData = useCallback(async () => {
-    if (!wallet || !contractAddress) return;
+    if (!wallet || !contractAddress) {
+      console.log('Cannot refresh data: wallet or contractAddress missing');
+      return;
+    }
 
     try {
+      console.log('Refreshing markets data...');
       // Get markets
       const marketsResult = await wallet.contracts.execute(
         contractAddress,
         'get_markets',
         {}
       );
-      if (marketsResult && Array.isArray(marketsResult)) {
-        setMarkets(marketsResult);
+      
+      console.log('Get markets result:', marketsResult);
+      
+      // Handle Result<Markets[], Error> response from contract
+      let marketsData = null;
+      if (marketsResult && typeof marketsResult === 'object') {
+        // Check if txn_result exists (Weil Wallet response format)
+        let resultData = marketsResult;
+        if ('txn_result' in marketsResult && typeof marketsResult.txn_result === 'string') {
+          resultData = JSON.parse(marketsResult.txn_result);
+        }
+        
+        if ('Ok' in resultData) {
+          // Parse the JSON string inside Ok
+          marketsData = typeof resultData.Ok === 'string' 
+            ? JSON.parse(resultData.Ok) 
+            : resultData.Ok;
+        } else if (Array.isArray(resultData)) {
+          // Direct array (fallback)
+          marketsData = resultData;
+        }
+      } else if (Array.isArray(marketsResult)) {
+        // Direct array (fallback)
+        marketsData = marketsResult;
+      }
+      
+      if (marketsData && Array.isArray(marketsData)) {
+        console.log('Setting markets:', marketsData.length, 'markets found');
+        setMarkets(marketsData);
+      } else {
+        console.log('No valid markets data received');
       }
 
       // Refresh user data if we have an address
@@ -212,11 +268,13 @@ export const WalletProvider = ({ children }: WalletProviderProps) => {
     }
   };
 
+  // Refresh data when wallet connection is established
   useEffect(() => {
     if (isConnected && contractAddress && userAddress && wallet) {
+      console.log('Wallet connected, refreshing data...', { userAddress, contractAddress });
       refreshData();
     }
-  }, [isConnected, contractAddress, userAddress, wallet, refreshData]);
+  }, [isConnected, contractAddress, userAddress, wallet]);
 
   return (
     <WalletContext.Provider

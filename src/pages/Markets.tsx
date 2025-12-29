@@ -2,16 +2,34 @@ import { useState } from 'react';
 import { useWallet } from '../contexts/WalletContext';
 import { Button, Card } from 'pixel-retroui';
 import { Outcome } from '../types/contract';
+import type { Market } from '../types/contract';
 import MarketCard from '../components/MarketCard';
 import CreateMarketForm from '../components/CreateMarketForm';
+import BetModal from '../components/BetModal';
 import { motion } from 'framer-motion';
 
 const Markets = () => {
-  const { wallet, isConnected, markets, contractAddress, connectWallet, refreshData } = useWallet();
+  const { wallet, isConnected, markets, contractAddress, connectWallet, refreshData, userAddress } = useWallet();
   const [showCreateModal, setShowCreateModal] = useState(false);
+  const [showBetModal, setShowBetModal] = useState(false);
+  const [selectedMarket, setSelectedMarket] = useState<Market | null>(null);
+  const [selectedSide, setSelectedSide] = useState<Outcome | null>(null);
   const [selectedOutcome, setSelectedOutcome] = useState<Record<string, Outcome>>({});
 
-  const handleVote = async (marketId: string, side: Outcome) => {
+  const handleVoteClick = (marketId: string, side: Outcome, quantity: number) => {
+    const market = markets.find(m => m.id === marketId);
+    if (market) {
+      setSelectedMarket(market);
+      setSelectedSide(side);
+      setShowBetModal(true);
+    }
+  };
+
+  const handleVote = async (quantity: number) => {
+    if (!selectedMarket || !selectedSide) return;
+    
+    const marketId = selectedMarket.id;
+    const side = selectedSide;
     if (!wallet) {
       alert('Please connect your wallet');
       return;
@@ -34,14 +52,31 @@ const Markets = () => {
         {
           market_id: marketId,
           side: side,
+          quantity: quantity,
         }
       );
 
-      if (result && 'Err' in result) {
-        alert(`Error: ${result.Err}`);
-      } else {
+      console.log('Bet result:', result);
+
+      // Handle Result<null, String> response from contract
+      let resultData = result;
+      if (result && typeof result === 'object' && 'txn_result' in result && typeof result.txn_result === 'string') {
+        resultData = JSON.parse(result.txn_result);
+      }
+      
+      if (resultData && typeof resultData === 'object' && 'Err' in resultData) {
+        const errorMsg = typeof resultData.Err === 'string' ? resultData.Err : JSON.stringify(resultData.Err);
+        alert(`Error: ${errorMsg}`);
+      } else if (resultData && typeof resultData === 'object' && 'Ok' in resultData) {
         alert('Vote submitted successfully!');
         setSelectedOutcome({ ...selectedOutcome, [marketId]: side });
+        setShowBetModal(false);
+        await refreshData();
+      } else {
+        // Fallback for direct success
+        alert('Vote submitted successfully!');
+        setSelectedOutcome({ ...selectedOutcome, [marketId]: side });
+        setShowBetModal(false);
         await refreshData();
       }
     } catch (error) {
@@ -161,8 +196,9 @@ const Markets = () => {
               >
                 <MarketCard
                   market={market}
-                  onVote={handleVote}
+                  onVote={handleVoteClick}
                   selectedOutcome={selectedOutcome[market.id]}
+                  userAddress={userAddress}
                 />
               </motion.div>
             ))}
@@ -176,6 +212,17 @@ const Markets = () => {
               setShowCreateModal(false);
               await refreshData();
             }}
+          />
+        )}
+
+        {showBetModal && selectedMarket && selectedSide && (
+          <BetModal
+            isOpen={showBetModal}
+            onClose={() => setShowBetModal(false)}
+            onSubmit={handleVote}
+            marketId={selectedMarket.id}
+            marketQuestion={selectedMarket.question}
+            side={selectedSide}
           />
         )}
       </div>
