@@ -16,7 +16,7 @@ const Markets = () => {
   const [selectedSide, setSelectedSide] = useState<Outcome | null>(null);
   const [selectedOutcome, setSelectedOutcome] = useState<Record<string, Outcome>>({});
 
-  const handleVoteClick = (marketId: string, side: Outcome, quantity: number) => {
+  const handleVoteClick = (marketId: string, side: Outcome) => {
     const market = markets.find(m => m.id === marketId);
     if (market) {
       setSelectedMarket(market);
