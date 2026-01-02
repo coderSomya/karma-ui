@@ -1,4 +1,4 @@
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import { HashRouter as Router, Routes, Route } from 'react-router-dom';
 import { WalletProvider } from './contexts/WalletContext';
 import Navigation from './components/Navigation';
 import Home from './pages/Home';
@@ -9,7 +9,7 @@ import './App.css';
 function App() {
   return (
     <WalletProvider>
-      <Router basename={import.meta.env.BASE_URL}>
+      <Router>
         <div className="min-h-screen" style={{ backgroundColor: 'var(--background)', color: 'var(--foreground)' }}>
           <Navigation />
           <Routes>
