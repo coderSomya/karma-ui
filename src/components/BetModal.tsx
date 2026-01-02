@@ -196,3 +196,4 @@ const BetModal = ({ isOpen, onClose, onSubmit, marketId, marketQuestion, side }:
 
 export default BetModal;
 
+

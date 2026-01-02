@@ -52,7 +52,7 @@ const Home = () => {
               कर्म
             </motion.h1>
             <motion.img
-              src="/balance.png"
+              src="./balance.png"
               alt="Balance scale"
               className="w-20 h-20 md:w-22 md:h-22 lg:w-25 lg:h-25 object-contain"
               style={{

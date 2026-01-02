@@ -9,7 +9,7 @@ import './App.css';
 function App() {
   return (
     <WalletProvider>
-      <Router>
+      <Router basename={import.meta.env.BASE_URL}>
         <div className="min-h-screen" style={{ backgroundColor: 'var(--background)', color: 'var(--foreground)' }}>
           <Navigation />
           <Routes>
